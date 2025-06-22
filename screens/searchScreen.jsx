@@ -1,14 +1,43 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react'
-import { Dimensions, Image, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Dimensions, Image, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View , ActivityIndicator, StyleSheet} from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler';
 import { XMarkIcon } from 'react-native-heroicons/solid'
 import { styles } from '../theme/style';
 import Loading from '../components/loading';
-import { searchMovie } from '../api';
+import { POSTER_PATH, searchMovie } from '../api';
 import {debounce} from 'lodash'
+import { BlurView } from 'expo-blur';
+
 const { width, height } = Dimensions.get('window');
 
+const PosterImage = ({ uri }) => {
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const imgWidth = Math.round(width * 0.445);
+  const imgHeight = Math.round(height * 0.3);
+
+  return (
+    <View style={{ width: imgWidth, height: imgHeight, borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+        onLoadEnd={() => setLoading(false)}
+        onError={() => {
+          setError(true);
+          setLoading(false);
+        }}
+      />
+      {(loading || error) && (
+        <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill}>
+          <ActivityIndicator size="small" color="#fff" style={{ flex: 1, alignSelf: 'center' }} />
+        </BlurView>
+      )}
+    </View>
+  );
+};
 const SearchScreen = () => {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false)
@@ -60,8 +89,7 @@ const SearchScreen = () => {
                                     })
                                 }}>
                                     <View>
-                                        <Image source={{uri: item.posterUrl}} 
-                                            style={{width: Math.round(width*0.44), height: Math.round(height*0.3)}} className="rounded-xl"  resizeMode='cover' />
+                                        <PosterImage uri={POSTER_PATH+item.poster_path} />
                                         <Text className="text-center text-white">
                                             {item.title.length > 15 ? item.title.slice(0,15)+'...' : item.title}
                                         </Text>

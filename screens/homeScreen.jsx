@@ -46,7 +46,9 @@ export default function HomeScreen() {
       <SafeAreaView>
           <StatusBar style='light' />
           <View className='flex-row items-center justify-between mx-4 my-2'>
-            <Bars3CenterLeftIcon size='30' color='white' strokeWidth={2} />
+            <TouchableOpacity onPress={() => navigation.openDrawer()}>
+              <Bars3CenterLeftIcon size={30} color="white" />
+            </TouchableOpacity>
             <Text style={styles.title}>Movies</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Search')}>
               <MagnifyingGlassIcon size='30' color='white' strokeWidth={2} />

@@ -1,15 +1,41 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { useEffect, useState } from 'react';
-import { Dimensions, Image, Platform, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeftIcon, HeartIcon } from 'react-native-heroicons/solid';
 import { HeartIcon as HeartIconOutline } from 'react-native-heroicons/outline';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from '../theme/style';
 import Cast from '../components/cast';
-import { trendingMovies } from '../constants/data';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
 import { fetchCredits, fetchDetail, fetchSimilar, POSTER_PATH } from '../api';
+import { BlurView } from 'expo-blur';
+
+
+const MovieImage = ({ uri }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  return (
+    <View style={{ width: '100%', height: '100%' }}>
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+        onLoadEnd={() => setLoading(false)}
+        onError={() => {
+          setError(true);
+          setLoading(false);
+        }}
+      />
+      {(loading || error) && (
+        <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill}>
+          <ActivityIndicator color="#fff" style={{ flex: 1, alignSelf: 'center' }} />
+        </BlurView>
+      )}
+    </View>
+  );
+};
 
 
 const ios = Platform.OS == 'ios';
@@ -74,11 +100,7 @@ const MovieScreen = () => {
             :
          <>
          <View style={{ height: Math.round(height * 0.55)}}>
-                <Image
-                    source={{ uri: POSTER_PATH+detail.poster_path }}
-                    style={{ width: width, height: '100%' }}
-                    resizeMode="cover"
-                />
+                <MovieImage uri={POSTER_PATH+detail.poster_path} />
                 <LinearGradient
                     colors={['transparent','rgba(23,23,23,0.5)','rgba(23,23,23,0.8)','rgba(23,23,23,1)']}
                     style={{ width: width, height: Math.round(height * 0.2) }}
